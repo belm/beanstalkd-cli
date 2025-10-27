@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beanstalkd 管理后台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#8b5cf6',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-lg border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fas fa-cubes text-primary text-3xl mr-3"></i>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                        Beanstalkd 管理后台
+                    </h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="h-3 w-3 bg-green-500 rounded-full animate-pulse"></div>
+                        <span class="text-sm text-gray-600">连接状态: <span id="connectionStatus" class="font-semibold text-green-600">已连接</span></span>
+                    </div>
+                    <button onclick="refreshAll()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 flex items-center space-x-2">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>刷新</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 顶部统计卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500 hover:shadow-lg transition-shadow duration-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">就绪任务</p>
+                        <p id="readyJobs" class="text-3xl font-bold text-gray-800 mt-1">-</p>
+                    </div>
+                    <div class="bg-blue-100 rounded-full p-3">
+                        <i class="fas fa-tasks text-blue-500 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500 hover:shadow-lg transition-shadow duration-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">预留任务</p>
+                        <p id="reservedJobs" class="text-3xl font-bold text-gray-800 mt-1">-</p>
+                    </div>
+                    <div class="bg-yellow-100 rounded-full p-3">
+                        <i class="fas fa-clock text-yellow-500 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500 hover:shadow-lg transition-shadow duration-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">总 Tubes</p>
+                        <p id="totalTubes" class="text-3xl font-bold text-gray-800 mt-1">-</p>
+                    </div>
+                    <div class="bg-purple-100 rounded-full p-3">
+                        <i class="fas fa-layer-group text-purple-500 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500 hover:shadow-lg transition-shadow duration-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">总任务数</p>
+                        <p id="totalJobs" class="text-3xl font-bold text-gray-800 mt-1">-</p>
+                    </div>
+                    <div class="bg-green-100 rounded-full p-3">
+                        <i class="fas fa-chart-line text-green-500 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主内容区域 - Tabs -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <!-- Tab 导航 -->
+            <div class="border-b border-gray-200">
+                <nav class="flex -mb-px">
+                    <button onclick="switchTab('tubes')" id="tab-tubes" class="tab-button active py-4 px-6 text-center border-b-2 font-medium text-sm flex items-center space-x-2">
+                        <i class="fas fa-layer-group"></i>
+                        <span>Tubes 管理</span>
+                    </button>
+                    <button onclick="switchTab('jobs')" id="tab-jobs" class="tab-button py-4 px-6 text-center border-b-2 font-medium text-sm flex items-center space-x-2">
+                        <i class="fas fa-tasks"></i>
+                        <span>任务管理</span>
+                    </button>
+                    <button onclick="switchTab('operations')" id="tab-operations" class="tab-button py-4 px-6 text-center border-b-2 font-medium text-sm flex items-center space-x-2">
+                        <i class="fas fa-cogs"></i>
+                        <span>操作中心</span>
+                    </button>
+                    <button onclick="switchTab('stats')" id="tab-stats" class="tab-button py-4 px-6 text-center border-b-2 font-medium text-sm flex items-center space-x-2">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>服务器统计</span>
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Tab 内容 -->
+            <div class="p-6">
+                <!-- Tubes 管理面板 -->
+                <div id="content-tubes" class="tab-content">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-gray-800">Tubes 列表</h2>
+                        <button onclick="loadTubes()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors">
+                            <i class="fas fa-sync-alt mr-2"></i>刷新
+                        </button>
+                    </div>
+                    <div id="tubesList" class="space-y-4">
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
+                            <p>加载中...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 任务管理面板 -->
+                <div id="content-jobs" class="tab-content hidden">
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">选择 Tube</label>
+                        <select id="jobsTubeSelect" onchange="loadJobsForTube()" class="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option value="">选择一个 Tube...</option>
+                        </select>
+                    </div>
+                    <div id="jobsList" class="space-y-4">
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-info-circle text-3xl mb-2"></i>
+                            <p>请选择一个 Tube 查看任务</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 操作中心面板 -->
+                <div id="content-operations" class="tab-content hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- 插入任务 -->
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+                            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-plus-circle text-blue-600 mr-2"></i>
+                                插入新任务
+                            </h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tube 名称</label>
+                                    <input type="text" id="putTube" value="default" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">任务数据</label>
+                                    <textarea id="putData" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="输入任务数据..."></textarea>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">优先级</label>
+                                        <input type="number" id="putPriority" value="1024" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">延迟(秒)</label>
+                                        <input type="number" id="putDelay" value="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                </div>
+                                <button onclick="putJob()" class="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                                    <i class="fas fa-paper-plane mr-2"></i>插入任务
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 预留任务 -->
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+                            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-hand-pointer text-green-600 mr-2"></i>
+                                预留任务
+                            </h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tube 名称</label>
+                                    <input type="text" id="reserveTube" value="default" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">超时时间(秒)</label>
+                                    <input type="number" id="reserveTimeout" value="5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                </div>
+                                <button onclick="reserveJob()" class="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
+                                    <i class="fas fa-download mr-2"></i>预留任务
+                                </button>
+                                <div id="reserveResult" class="hidden mt-4 p-4 bg-white rounded-lg border border-green-200">
+                                    <p class="text-sm font-medium text-gray-700 mb-2">预留成功：</p>
+                                    <pre id="reserveResultContent" class="text-xs bg-gray-50 p-3 rounded overflow-x-auto"></pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 删除任务 -->
+                        <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 border border-red-200">
+                            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-trash-alt text-red-600 mr-2"></i>
+                                删除任务
+                            </h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">任务 ID</label>
+                                    <input type="number" id="deleteJobId" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="输入任务 ID">
+                                </div>
+                                <button onclick="deleteJob()" class="w-full px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
+                                    <i class="fas fa-trash mr-2"></i>删除任务
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 踢出任务 -->
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
+                            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-shoe-prints text-purple-600 mr-2"></i>
+                                踢出任务
+                            </h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tube 名称</label>
+                                    <input type="text" id="kickTube" value="default" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">数量</label>
+                                    <input type="number" id="kickBound" value="10" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                </div>
+                                <button onclick="kickJobs()" class="w-full px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium">
+                                    <i class="fas fa-rocket mr-2"></i>踢出任务
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 服务器统计面板 -->
+                <div id="content-stats" class="tab-content hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-gray-800">服务器详细统计</h2>
+                        <button onclick="loadServerStats()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors">
+                            <i class="fas fa-sync-alt mr-2"></i>刷新
+                        </button>
+                    </div>
+                    <div id="serverStats" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
+                            <p>加载中...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知Toast -->
+    <div id="toast" class="fixed bottom-4 right-4 hidden">
+        <div class="bg-white rounded-lg shadow-2xl p-4 border-l-4 min-w-[300px] transform transition-all duration-300">
+            <div class="flex items-start">
+                <i id="toastIcon" class="text-2xl mr-3"></i>
+                <div class="flex-1">
+                    <p id="toastTitle" class="font-semibold text-gray-800"></p>
+                    <p id="toastMessage" class="text-sm text-gray-600 mt-1"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

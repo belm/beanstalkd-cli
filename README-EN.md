@@ -14,6 +14,24 @@ An all-in-one toolkit for Beanstalkd featuring a powerful command-line interface
 
 ## 📦 Quick Start
 
+
+### 🖼️ Interface Preview
+
+<p align="center">
+  <img src="images/main.png" alt="Web UI dashboard overview" width="820">
+  <br><em>仪表盘首页：实时统计与全局概览</em>
+</p>
+
+<p align="center">
+  <img src="images/tube.png" alt="Tube management view" width="820">
+  <br><em>Tube 管理：各 Tube 详情与状态一目了然</em>
+</p>
+
+<p align="center">
+  <img src="images/operation.png" alt="Operations center view" width="820">
+  <br><em>操作中心：插入、预留、删除、踢出任务集中管理</em>
+</p>
+
 ### Install the CLI
 
 #### Recommended: `go install`

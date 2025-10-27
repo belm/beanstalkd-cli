@@ -16,7 +16,7 @@ A modern, user-friendly management console for Beanstalkd built with Tailwind CS
 ## 🚀 Quick Start
 
 ```bash
-cd web
+cd beanstalkd-web
 ./start.sh               # or: go run server.go
 ```
 

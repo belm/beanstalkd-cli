@@ -47,13 +47,14 @@
 go install github.com/belm/beanstalkd-cli@latest
 
 # 安装 Web 服务（可选）
-go install github.com/belm/beanstalkd-cli/web@latest
+go install github.com/belm/beanstalkd-cli/beanstalkd-web@latest
 ```
 
 安装完成后：
 
-- 命令行工具二进制为 `beanstalkd-cli`，可以直接在终端使用
-- Web 服务二进制默认为 `web`（位于 `$(go env GOPATH)/bin`），请确保该目录已加入 `PATH` （注意拷贝index.html和app.js到web目录）
+- 安装的二进制文件均位于 `$(go env GOPATH)/bin`目录，请确保该目录已加入 `PATH` 
+- 命令行工具二进制为 `beanstalkd-cli`
+- Web 服务二进制默认为 `beanstalkd-web`，（注意拷贝index.html和app.js到beanstalkd-web目录）
 
 #### 从源码构建
 
@@ -75,7 +76,7 @@ go run main.go
 ### 启动 Web UI
 
 ```bash
-cd web
+cd beanstalkd-web
 ./start.sh
 ```
 
@@ -326,15 +327,15 @@ make coverage
 #### 使用已安装的二进制
 ```bash
 # 默认连接 127.0.0.1:11300，监听 8080 端口
-web
+beanstalkd-web
 
 # 指定连接地址与端口
-web -beanstalkd 192.168.1.100:11300 -port 9090
+beanstalkd-web -beanstalkd 192.168.1.100:11300 -port 9090
 ```
 
 #### 使用源码/脚本
 ```bash
-cd web
+cd beanstalkd-web
 ./start.sh
 # 或
 go run server.go
@@ -533,7 +534,7 @@ cd web && ./start.sh
 ./beanstalkd-cli -H prod-server -p 11300 <command>
 
 # Web UI 使用命令行参数
-cd web
+cd beanstalkd-web
 go run server.go -beanstalkd prod-server:11300 -port 80
 ```
 

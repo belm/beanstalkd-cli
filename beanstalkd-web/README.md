@@ -24,7 +24,7 @@
 ### 2. 启动 Web 服务器
 
 ```bash
-cd web
+cd beanstalkd-web
 go run server.go
 ```
 
@@ -272,7 +272,7 @@ After=network.target
 [Service]
 Type=simple
 User=www-data
-WorkingDirectory=/path/to/beanstalkd-cli/web
+WorkingDirectory=/path/to/beanstalkd-cli/beanstalkd-web
 ExecStart=/usr/local/go/bin/go run server.go
 Restart=on-failure
 

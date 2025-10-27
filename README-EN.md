@@ -23,14 +23,16 @@ An all-in-one toolkit for Beanstalkd featuring a powerful command-line interface
 go install github.com/belm/beanstalkd-cli@latest
 
 # Install the web service (optional)
-go install github.com/belm/beanstalkd-cli/web@latest
+go install github.com/belm/beanstalkd-cli/beanstalkd-web@latest
 ```
 
 After installation:
 
-- The CLI binary is named `beanstalkd-cli` and can be used directly from your terminal
-- The web service binary defaults to `web` in `$(go env GOPATH)/bin`; make sure the directory is in your `PATH`
-
+- The installed binary files are located in the `$(go env GOPATH)/bin` directory, please make sure that this directory has been added to the `PATH`.
+- The CLI binary is named `beanstalkd-cli` 
+- The web service binary defaults to `beanstalkd-web` ;(Note: copy index.html and app.js to 
+- web directory)
+  
 #### Build from source
 
 ```bash
@@ -53,15 +55,15 @@ go run main.go
 #### Using the installed binary
 ```bash
 # Default: connect to 127.0.0.1:11300 and listen on 8080
-web
+beanstalkd-web
 
 # Specify Beanstalkd host and web port
-web -beanstalkd 192.168.1.100:11300 -port 9090
+beanstalkd-web -beanstalkd 192.168.1.100:11300 -port 9090
 ```
 
 #### Using source/scripts
 ```bash
-cd web
+cd beanstalkd-web
 ./start.sh
 # or
 go run server.go
@@ -117,12 +119,12 @@ Screenshots are available in the main README’s “🖼️ 界面预览” sect
 
 ```
 beanstalkd-cli/
-├── cmd/          # CLI command implementations
-├── tests/        # Automated tests and helpers
-├── web/          # Web dashboard (Go server + static assets)
-├── main.go       # CLI entrypoint
-├── Makefile      # Convenience commands
-└── README*.md    # Documentation (bilingual)
+├── cmd/            # CLI command implementations
+├── tests/          # Automated tests and helpers
+├── beanstalkd-web/ # Web dashboard (Go server + static assets)
+├── main.go         # CLI entrypoint
+├── Makefile        # Convenience commands
+└── README*.md      # Documentation (bilingual)
 ```
 
 ## 🚀 Deployment Tips

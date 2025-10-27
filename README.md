@@ -365,12 +365,6 @@ Web UI 支持灵活配置：
 
 **配置优先级**: 命令行参数 > 环境变量 > 默认值
 
-### 📚 详细文档
-
-- **英文文档**: [web/README.md](web/README.md)
-- **使用说明**: [web/使用说明.md](web/使用说明.md)
-- **配置说明**: [web/配置说明.md](web/配置说明.md)
-
 ### 🎯 适用场景
 
 - 开发调试 - 快速查看和操作任务
@@ -433,8 +427,6 @@ make bench
 make coverage
 ```
 
-详细文档: [tests/测试说明.md](tests/测试说明.md)
-
 ## 📁 项目结构
 
 ```
@@ -469,21 +461,6 @@ beanstalkd-cli/
 ├── 使用指南.md            # 中文详细指南
 └── 项目说明.md            # 项目概述
 ```
-
-## 📚 文档目录
-
-### 中文文档
-- [快速开始](QUICK_START.md) - 5分钟快速上手
-- [使用指南](使用指南.md) - 详细的使用说明和示例
-- [项目说明](项目说明.md) - 项目功能和特色介绍
-- [Web UI 使用说明](web/使用说明.md) - Web 管理后台使用指南
-- [Web UI 配置说明](web/配置说明.md) - Web UI 配置详解
-- [测试说明](tests/测试说明.md) - 测试套件说明
-
-### 英文文档
-- [README.md](README.md) - 项目主文档（本文件）
-- [Web UI README](web/README.md) - Web 管理后台文档
-- [Tests README](tests/README.md) - 测试套件文档
 
 ## 🎯 使用场景
 

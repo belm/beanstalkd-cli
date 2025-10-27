@@ -1,9 +1,10 @@
 package main
 
 import (
-	"beanstalkd-cli/cmd"
 	"fmt"
 	"os"
+
+	"github.com/belm/beanstalkd-cli/cmd"
 )
 
 func main() {

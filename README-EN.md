@@ -16,6 +16,23 @@ An all-in-one toolkit for Beanstalkd featuring a powerful command-line interface
 
 ### Install the CLI
 
+#### Recommended: `go install`
+
+```bash
+# Install the CLI
+go install github.com/belm/beanstalkd-cli@latest
+
+# Install the web service (optional)
+go install github.com/belm/beanstalkd-cli/web@latest
+```
+
+After installation:
+
+- The CLI binary is named `beanstalkd-cli` and can be used directly from your terminal
+- The web service binary defaults to `web` in `$(go env GOPATH)/bin`; make sure the directory is in your `PATH`
+
+#### Build from source
+
 ```bash
 # Clone and enter the project
 git clone <repository-url>
@@ -33,9 +50,21 @@ go run main.go
 
 ### Launch the Web UI
 
+#### Using the installed binary
+```bash
+# Default: connect to 127.0.0.1:11300 and listen on 8080
+web
+
+# Specify Beanstalkd host and web port
+web -beanstalkd 192.168.1.100:11300 -port 9090
+```
+
+#### Using source/scripts
 ```bash
 cd web
 ./start.sh
+# or
+go run server.go
 ```
 
 Visit **http://localhost:8080** once the server is up.

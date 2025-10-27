@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -20,6 +21,19 @@ var (
 type Response struct {
 	Error string      `json:"error,omitempty"`
 	Data  interface{} `json:"data,omitempty"`
+}
+
+func handleStatic(w http.ResponseWriter, r *http.Request) {
+	switch r.URL.Path {
+	case "/", "/index.html":
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		fmt.Fprint(w, indexHTML)
+	case "/app.js":
+		w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+		fmt.Fprint(w, appJS)
+	default:
+		http.NotFound(w, r)
+	}
 }
 
 type StatsResponse struct {
@@ -69,6 +83,12 @@ type KickResponse struct {
 	Error  string `json:"error,omitempty"`
 }
 
+//go:embed index.html
+var indexHTML []byte
+
+//go:embed app.js
+var appJS []byte
+
 func main() {
 	// 解析命令行参数
 	flag.StringVar(&beanstalkdHost, "beanstalkd", "", "Beanstalkd 服务器地址 (默认: 127.0.0.1:11300)")
@@ -91,8 +111,7 @@ func main() {
 	}
 
 	// 静态文件服务
-	fs := http.FileServer(http.Dir("./"))
-	http.Handle("/", fs)
+	http.HandleFunc("/", handleStatic)
 
 	// API 路由
 	http.HandleFunc("/api/stats", handleStats)

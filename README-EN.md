@@ -28,11 +28,10 @@ go install github.com/belm/beanstalkd-cli/beanstalkd-web@latest
 
 After installation:
 
-- The installed binary files are located in the `$(go env GOPATH)/bin` directory, please make sure that this directory has been added to the `PATH`.
-- The CLI binary is named `beanstalkd-cli` 
-- The web service binary defaults to `beanstalkd-web` ;(Note: copy index.html and app.js to 
-- web directory)
-  
+- All binaries are placed in `$(go env GOPATH)/bin`; ensure this directory is in your `PATH`
+- The CLI binary is named `beanstalkd-cli`
+- The web service binary defaults to `beanstalkd-web`; static assets are embedded, so no manual copying is required
+
 #### Build from source
 
 ```bash

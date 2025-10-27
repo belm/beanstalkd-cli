@@ -1,7 +1,7 @@
 package main
 
 import (
-	_ "embed"
+	"embed"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -24,15 +24,32 @@ type Response struct {
 }
 
 func handleStatic(w http.ResponseWriter, r *http.Request) {
+	var (
+		fileName    string
+		contentType string
+	)
+
 	switch r.URL.Path {
 	case "/", "/index.html":
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprint(w, indexHTML)
+		fileName = "index.html"
+		contentType = "text/html; charset=utf-8"
 	case "/app.js":
-		w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
-		fmt.Fprint(w, appJS)
+		fileName = "app.js"
+		contentType = "application/javascript; charset=utf-8"
 	default:
 		http.NotFound(w, r)
+		return
+	}
+
+	data, err := staticFiles.ReadFile(fileName)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("无法读取静态资源: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", contentType)
+	if _, err := w.Write(data); err != nil {
+		log.Printf("failed to write static response: %v", err)
 	}
 }
 
@@ -83,11 +100,8 @@ type KickResponse struct {
 	Error  string `json:"error,omitempty"`
 }
 
-//go:embed index.html
-var indexHTML []byte
-
-//go:embed app.js
-var appJS []byte
+//go:embed index.html app.js
+var staticFiles embed.FS
 
 func main() {
 	// 解析命令行参数

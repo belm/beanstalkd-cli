@@ -52,9 +52,9 @@ go install github.com/belm/beanstalkd-cli/beanstalkd-web@latest
 
 安装完成后：
 
-- 安装的二进制文件均位于 `$(go env GOPATH)/bin`目录，请确保该目录已加入 `PATH` 
+- 安装的二进制文件均位于 `$(go env GOPATH)/bin` 目录，请确保该目录已加入 `PATH`
 - 命令行工具二进制为 `beanstalkd-cli`
-- Web 服务二进制默认为 `beanstalkd-web`，（注意拷贝index.html和app.js到beanstalkd-web目录）
+- Web 服务二进制默认为 `beanstalkd-web`，静态资源已内置于二进制，无需额外拷贝
 
 #### 从源码构建
 

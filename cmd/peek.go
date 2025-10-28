@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/beanstalkd/go-beanstalk"
 	"github.com/fatih/color"
@@ -50,6 +51,9 @@ var peekReadyCmd = &cobra.Command{
 		tubeSet := beanstalk.NewTube(conn, tube)
 		id, body, err := tubeSet.PeekReady()
 		if err != nil {
+			if strings.Contains(err.Error(), "not found") {
+				return fmt.Errorf("no ready jobs found in tube '%s'", tube)
+			}
 			return fmt.Errorf("failed to peek ready job: %w", err)
 		}
 
@@ -74,6 +78,9 @@ var peekDelayedCmd = &cobra.Command{
 		tubeSet := beanstalk.NewTube(conn, tube)
 		id, body, err := tubeSet.PeekDelayed()
 		if err != nil {
+			if strings.Contains(err.Error(), "not found") {
+				return fmt.Errorf("no delayed jobs found in tube '%s'", tube)
+			}
 			return fmt.Errorf("failed to peek delayed job: %w", err)
 		}
 
@@ -98,6 +105,9 @@ var peekBuriedCmd = &cobra.Command{
 		tubeSet := beanstalk.NewTube(conn, tube)
 		id, body, err := tubeSet.PeekBuried()
 		if err != nil {
+			if strings.Contains(err.Error(), "not found") {
+				return fmt.Errorf("no buried jobs found in tube '%s'", tube)
+			}
 			return fmt.Errorf("failed to peek buried job: %w", err)
 		}
 
